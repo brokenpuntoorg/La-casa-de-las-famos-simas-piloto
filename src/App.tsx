@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Lovely, Confession, LovelyId } from './types';
+import { Lovely, Confession, GalaWeek, LovelyId } from './types';
 import { INITIAL_LOVELYS, GALA_WEEKS, INITIAL_CONFESSIONS, REALITY_CAMS } from './data/lovelysData';
 import { TopBar } from './components/TopBar';
 import { HeroSection } from './components/HeroSection';
@@ -17,13 +17,51 @@ import { RulesSection } from './components/RulesSection';
 import { Footer } from './components/Footer';
 import { VoteModal } from './components/VoteModal';
 import { LovelyDetailModal } from './components/LovelyDetailModal';
+import { AdminPanel } from './components/AdminPanel';
+import { ShareLinksModal } from './components/ShareLinksModal';
 import { sounds } from './utils/soundEffects';
 
-const STORAGE_KEY_LOVELYS = 'lcdf_lovelys_v1';
-const STORAGE_KEY_VOTES = 'lcdf_available_votes_v1';
-const STORAGE_KEY_CONFESSIONS = 'lcdf_confessions_v1';
+const STORAGE_KEY_LOVELYS = 'lcdf_lovelys_v2';
+const STORAGE_KEY_VOTES = 'lcdf_available_votes_v2';
+const STORAGE_KEY_CONFESSIONS = 'lcdf_confessions_v2';
+const STORAGE_KEY_WEEKS = 'lcdf_weeks_v2';
 
 export default function App() {
+  // Check URL query parameter on initial load (?mode=admin or ?mode=votante)
+  const [currentMode, setCurrentMode] = useState<'votante' | 'admin'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'admin' || params.get('admin') === 'true') {
+        return 'admin';
+      }
+    }
+    return 'votante';
+  });
+
+  const [shareModalOpen, setShareModalOpen] = useState<boolean>(false);
+
+  // Sync mode with browser history and URL
+  const handleSwitchMode = useCallback((newMode: 'votante' | 'admin') => {
+    sounds.playClick();
+    setCurrentMode(newMode);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('mode', newMode);
+      window.history.pushState({}, '', url.toString());
+    }
+  }, []);
+
+  // Listen to popstate (browser back/forward)
+  useEffect(() => {
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const modeInUrl = params.get('mode') === 'admin' ? 'admin' : 'votante';
+      setCurrentMode(modeInUrl);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   // Load saved state or default
   const [lovelys, setLovelys] = useState<Lovely[]>(() => {
     try {
@@ -33,6 +71,16 @@ export default function App() {
       // ignore
     }
     return INITIAL_LOVELYS;
+  });
+
+  const [weeks, setWeeks] = useState<GalaWeek[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_WEEKS);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return GALA_WEEKS;
   });
 
   const [availableVotes, setAvailableVotes] = useState<number>(() => {
@@ -65,14 +113,12 @@ export default function App() {
   // Recalculate percentages & ranks whenever votes change
   const recalculateStats = useCallback((currentList: Lovely[]): Lovely[] => {
     const total = currentList.reduce((acc, curr) => acc + curr.votes, 0) || 1;
-    // Sort to determine new ranks
     const sorted = [...currentList].sort((a, b) => b.votes - a.votes);
     
     return currentList.map((item) => {
       const rankIndex = sorted.findIndex((s) => s.id === item.id) + 1;
       const pct = (item.votes / total) * 100;
 
-      // Update status if they are top 3 and not nominated or leader
       let updatedStatus = item.status;
       if (item.status !== 'NOMINADA' && item.status !== 'LIDER_INMUNE') {
         updatedStatus = rankIndex <= 2 ? 'FAVORITA_TOP' : 'SALVA';
@@ -96,6 +142,14 @@ export default function App() {
       // ignore
     }
   }, [lovelys]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_WEEKS, JSON.stringify(weeks));
+    } catch {
+      // ignore
+    }
+  }, [weeks]);
 
   useEffect(() => {
     try {
@@ -154,6 +208,11 @@ export default function App() {
     setConfessions((prev) => [created, ...prev]);
   };
 
+  // Delete confession (admin)
+  const handleDeleteConfession = (id: string) => {
+    setConfessions((prev) => prev.filter((c) => c.id !== id));
+  };
+
   // Like confession
   const handleLikeConfession = (id: string) => {
     setConfessions((prev) =>
@@ -171,14 +230,14 @@ export default function App() {
     return lovelys.find((l) => l.status === 'LIDER_INMUNE') || lovelys[1];
   }, [lovelys]);
 
-  // Simulated live background votes (like a real live reality broadcast)
+  // Simulated live background votes
   useEffect(() => {
     if (!isSimulating) return;
 
     const interval = setInterval(() => {
-      // Pick random lovely and add between 10 and 45 votes
-      const randomIndex = Math.floor(Math.random() * INITIAL_LOVELYS.length);
-      const randomLovelyId = INITIAL_LOVELYS[randomIndex].id;
+      const randomIndex = Math.floor(Math.random() * lovelys.length);
+      const randomLovelyId = lovelys[randomIndex]?.id;
+      if (!randomLovelyId) return;
       const randomBump = Math.floor(Math.random() * 35) + 10;
 
       setLovelys((prev) => {
@@ -190,7 +249,7 @@ export default function App() {
     }, 3200);
 
     return () => clearInterval(interval);
-  }, [isSimulating, recalculateStats]);
+  }, [isSimulating, recalculateStats, lovelys.length]);
 
   const handleScrollToNominadas = () => {
     const el = document.getElementById('galas');
@@ -202,75 +261,97 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       
-      {/* 3-Zone Top Bar */}
+      {/* 3-Zone Top Bar with mode toggle & share links */}
       <TopBar
         onQuickVoteClick={() => {
-          // Open voting for current leader or top favorite
           const target = lovelys.find((l) => l.rank === 1) || lovelys[0];
           setVoteModalLovely(target);
         }}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         availableVotes={availableVotes}
+        currentMode={currentMode}
+        onToggleMode={() => handleSwitchMode(currentMode === 'admin' ? 'votante' : 'admin')}
+        onOpenShareModal={() => setShareModalOpen(true)}
       />
 
-      {/* Main Content */}
+      {/* Main View Router: Admin vs Voter */}
       <main className="flex-1">
-        {/* Hero Section with Reality Stage & Countdown */}
-        <HeroSection
-          totalVotes={totalVotes}
-          availableVotes={availableVotes}
-          onOpenVoting={() => {
-            const target = lovelys.find((l) => l.rank === 1) || lovelys[0];
-            setVoteModalLovely(target);
-          }}
-          onScrollToNominadas={handleScrollToNominadas}
-          currentLeaderName={currentLeader.name}
-        />
+        {currentMode === 'admin' ? (
+          /* ================= ADMIN VIEW ================= */
+          <AdminPanel
+            lovelys={lovelys}
+            onUpdateLovelys={(updated) => setLovelys(recalculateStats(updated))}
+            weeks={weeks}
+            onUpdateWeeks={setWeeks}
+            confessions={confessions}
+            onAddConfession={handleAddConfession}
+            onDeleteConfession={handleDeleteConfession}
+            isSimulating={isSimulating}
+            onToggleSimulation={() => setIsSimulating(!isSimulating)}
+            onSwitchToVoterView={() => handleSwitchMode('votante')}
+            onOpenShareModal={() => setShareModalOpen(true)}
+          />
+        ) : (
+          /* ================= VOTER / PUBLIC VIEW ================= */
+          <>
+            {/* Hero Section with Reality Stage & Countdown */}
+            <HeroSection
+              totalVotes={totalVotes}
+              availableVotes={availableVotes}
+              onOpenVoting={() => {
+                const target = lovelys.find((l) => l.rank === 1) || lovelys[0];
+                setVoteModalLovely(target);
+              }}
+              onScrollToNominadas={handleScrollToNominadas}
+              currentLeaderName={currentLeader.name}
+            />
 
-        {/* Podio de Favoritas */}
-        <LeaderboardPodium
-          lovelys={lovelys}
-          onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
-          onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
-        />
+            {/* Podio de Favoritas */}
+            <LeaderboardPodium
+              lovelys={lovelys}
+              onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
+              onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
+            />
 
-        {/* Cabina y Lista Completa de Votación */}
-        <VotingSection
-          lovelys={lovelys}
-          totalVotes={totalVotes}
-          availableVotes={availableVotes}
-          onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
-          onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
-          isSimulating={isSimulating}
-          onToggleSimulation={() => setIsSimulating(!isSimulating)}
-        />
+            {/* Cabina y Lista Completa de Votación */}
+            <VotingSection
+              lovelys={lovelys}
+              totalVotes={totalVotes}
+              availableVotes={availableVotes}
+              onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
+              onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
+              isSimulating={isSimulating}
+              onToggleSimulation={() => setIsSimulating(!isSimulating)}
+            />
 
-        {/* Gala Semanal & Placa de Nominadas */}
-        <GalaTimelineSection
-          weeks={GALA_WEEKS}
-          lovelys={lovelys}
-          onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
-          onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
-        />
+            {/* Gala Semanal & Placa de Nominadas */}
+            <GalaTimelineSection
+              weeks={weeks}
+              lovelys={lovelys}
+              onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
+              onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
+            />
 
-        {/* El Confesionario Íntimo */}
-        <ConfesionarioSection
-          confessions={confessions}
-          lovelys={lovelys}
-          onAddConfession={handleAddConfession}
-          onLikeConfession={handleLikeConfession}
-        />
+            {/* El Confesionario Íntimo */}
+            <ConfesionarioSection
+              confessions={confessions}
+              lovelys={lovelys}
+              onAddConfession={handleAddConfession}
+              onLikeConfession={handleLikeConfession}
+            />
 
-        {/* Cámaras 24/7 en Vivo */}
-        <LiveCamsSection
-          cams={REALITY_CAMS}
-          lovelys={lovelys}
-          onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
-        />
+            {/* Cámaras 24/7 en Vivo */}
+            <LiveCamsSection
+              cams={REALITY_CAMS}
+              lovelys={lovelys}
+              onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
+            />
 
-        {/* Reglamento y Mecánica */}
-        <RulesSection />
+            {/* Reglamento y Mecánica */}
+            <RulesSection />
+          </>
+        )}
       </main>
 
       {/* Clean Footer */}
@@ -291,6 +372,14 @@ export default function App() {
         isOpen={Boolean(detailModalLovely)}
         onClose={() => setDetailModalLovely(null)}
         onVote={(lovely) => setVoteModalLovely(lovely)}
+      />
+
+      {/* Share Links Modal */}
+      <ShareLinksModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        currentMode={currentMode}
+        onSwitchMode={handleSwitchMode}
       />
 
     </div>

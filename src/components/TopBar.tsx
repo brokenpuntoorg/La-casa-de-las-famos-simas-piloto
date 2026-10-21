@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Link2, ShieldCheck, UserCheck } from 'lucide-react';
 import { sounds } from '../utils/soundEffects';
 
 interface TopBarProps {
@@ -7,6 +7,9 @@ interface TopBarProps {
   soundEnabled: boolean;
   onToggleSound: () => void;
   availableVotes: number;
+  currentMode: 'votante' | 'admin';
+  onToggleMode: () => void;
+  onOpenShareModal: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -14,10 +17,13 @@ export const TopBar: React.FC<TopBarProps> = ({
   soundEnabled,
   onToggleSound,
   availableVotes,
+  currentMode,
+  onToggleMode,
+  onOpenShareModal,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-8 px-4 sm:px-6 py-3.5">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-8 px-4 sm:px-6 py-3">
         {/* Zone 1: Single text element wordmark */}
         <a
           href="#"
@@ -71,8 +77,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           </a>
         </nav>
 
-        {/* Zone 3: 1 primary action */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Zone 3: 1 primary action area */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Sound Toggle */}
           <button
             type="button"
             onClick={onToggleSound}
@@ -83,19 +90,62 @@ export const TopBar: React.FC<TopBarProps> = ({
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
           </button>
 
+          {/* Share Links Button */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playClick();
+              onOpenShareModal();
+            }}
+            className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            title="Compartir enlace de usuario o administrador"
+          >
+            <Link2 className="w-4 h-4 text-pink-400" />
+            <span className="hidden sm:inline">Compartir</span>
+          </button>
+
+          {/* Mode Switcher Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playClick();
+              onToggleMode();
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${
+              currentMode === 'admin'
+                ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 hover:bg-amber-500/25'
+                : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
+            }`}
+            title={`Modo actual: ${currentMode === 'admin' ? 'Administrador' : 'Votante'}. Clic para cambiar.`}
+          >
+            {currentMode === 'admin' ? (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden md:inline">Admin</span>
+              </>
+            ) : (
+              <>
+                <UserCheck className="w-3.5 h-3.5 text-pink-400" />
+                <span className="hidden md:inline">Votante</span>
+              </>
+            )}
+          </button>
+
+          {/* Primary Action Button */}
           <button
             type="button"
             onClick={() => {
               sounds.playClick();
               onQuickVoteClick();
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-lg shadow-lg shadow-pink-600/20 active:scale-95 transition-all whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-lg shadow-lg shadow-pink-600/20 active:scale-95 transition-all whitespace-nowrap shrink-0"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Emitir Votos ({availableVotes})</span>
+            <span>Votar ({availableVotes})</span>
           </button>
         </div>
       </div>
     </header>
   );
 };
+
