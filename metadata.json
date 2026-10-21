@@ -1,0 +1,6 @@
+{
+  "name": "La Casa de las Famosísimas: Lovelys TWYCE",
+  "description": "Votaciones oficiales y gala semanal en vivo de La Casa de las Famosísimas con las Lovelys de TWICE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
