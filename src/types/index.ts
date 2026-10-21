@@ -9,7 +9,7 @@ export type LovelyId =
   | 'chaengvely'
   | 'tzuvely';
 
-export type HouseStatus = 'NOMINADA' | 'SALVA' | 'LIDER_INMUNE' | 'FAVORITA_TOP';
+export type HouseStatus = 'NOMINADA' | 'SALVA' | 'LIDER_INMUNE' | 'FAVORITA_TOP' | 'ELIMINADA';
 
 export interface Lovely {
   id: LovelyId;
@@ -29,6 +29,7 @@ export interface Lovely {
   bio: string;
   famousQuote: string;
   houseScandal: string;
+  defenseSpeech?: string;
   stats: {
     charisma: number;
     drama: number;

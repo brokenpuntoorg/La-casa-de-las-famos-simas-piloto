@@ -19,6 +19,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Todo el mundo cree que es inocente hasta que convence a la casa entera de votar como ella quería con solo un guiño y una sonrisa adorable. Llena la casa de abrazos y pequeñas travesuras.',
     famousQuote: '¿Cómo voy a ser estratega si sólo les di un cariñito a todas?',
     houseScandal: 'Tropezó accidentalmente con el cable maestro de la gala y apagó los monitores del plató durante el corte comercial.',
+    defenseSpeech: 'Si me voy del carrusel, ¿quién les va a dar abrazos a las cámaras? No crean en las acusaciones de complot, ¡sólo soy una Lovely llena de amor y ternura!',
     stats: {
       charisma: 99,
       drama: 92,
@@ -45,6 +46,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'La más serena en pantalla pero sus comentarios de una sola frase desmantelan los complots más elaborados. Imposible enojarse con ella, lo cual la convierte en la jugadora más letal de la casa.',
     famousQuote: 'No estoy nominada porque no me meto en sus dramas... todavía.',
     houseScandal: 'Respondió "Ah, ¿eso era una indirecta?" con total calma durante el careo más dramático del jueves.',
+    defenseSpeech: 'Dicen que hablo poco, pero cuando hablo digo la verdad. Si quieren que gane la calma y no las intrigas, confío plenamente en la decisión del público.',
     stats: {
       charisma: 97,
       drama: 84,
@@ -71,6 +73,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Entrena 5 horas continuas frente al espejo de la sala y luego pasa la noche buscando helado y jokbal. Sus reacciones faciales son el motor principal de los memes virales del reality.',
     famousQuote: 'Salven a su comelona favorita, o me quedo sin refrigerios nocturnos.',
     houseScandal: 'Ocultó 8 paquetes de gomitas bajo los almohadones del sofá principal antes de la inspección del líder.',
+    defenseSpeech: '¡Pueblo Once! No vine a pelear, vine a bailar y comer rico. Si me expulsan en este carrusel, nadie volverá a animar las fiestas de la casa. ¡Voten para salvar a Movely!',
     stats: {
       charisma: 96,
       drama: 95,
@@ -98,6 +101,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'La autoproclamada primera dama de la suite. Es la primera en arreglarse, la más competitiva en las pruebas del presupuesto y la defensora absoluta del protagonismo escénico.',
     famousQuote: 'Vine a dar espectáculo y a llevarme la corona dorada, queridas.',
     houseScandal: 'Ocupó el vestidor principal durante dos horas seguidas para ensayar su entrada a la gala.',
+    defenseSpeech: 'Un reality sin su estrella más luminosa sería un velorio. La audiencia sabe quién entrega glamour y ratings todos los días. ¡A votar por Navely!',
     stats: {
       charisma: 98,
       drama: 93,
@@ -124,6 +128,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Posee un sensor biológico para saber exactamente cuál de las 48 cámaras de la casa está en directo. Hace muecas desopilantes justo en el clímax de las conversaciones serias ajenas.',
     famousQuote: 'Cámara 4, sé que me estás enfocando en primer plano. ¡Vota por Davely!',
     houseScandal: 'Bailó el paso del águila sobre la mesa del comedor tras salvarse de la nominación previa.',
+    defenseSpeech: 'Cámara 1, 2, 3 y 4: las estoy mirando fijamente. Si me sacan de la casa, ¿quién les va a hacer reír en los momentos más tensos? ¡A salvar a Davely con todo!',
     stats: {
       charisma: 95,
       drama: 88,
@@ -151,6 +156,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Elegancia pura y voz suave. No levanta el tono jamás, pero sabe quién nomina a quién con dos días de anticipación. Por las noches arma rompecabezas mientras medita su próxima jugada.',
     famousQuote: 'El silencio a veces nomina más fuerte que cualquier discurso.',
     houseScandal: 'Ganó la prueba de salvación sin despeinarse un solo mechón mientras las demás corrían exhaustas.',
+    defenseSpeech: 'La estrategia silenciosa es la más elegante. Todavía tengo muchas jugadas magistrales por mostrar antes de la final. Confío en ustedes.',
     stats: {
       charisma: 94,
       drama: 75,
@@ -177,6 +183,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'No necesita megáfono para que toda la casa la escuche a 50 metros. Organiza las tareas diarias, el racionamiento de comida y las rutinas deportivas con disciplina olímpica.',
     famousQuote: 'O nos ordenamos con la limpieza o esta semana comemos arroz con sal.',
     houseScandal: 'Despertó a todas las habitantes cantando un do de pecho impecable a las 7:00 AM.',
+    defenseSpeech: 'Esta casa necesita orden, pasión y voz de mando. He dado mi 100% en cada prueba para que tengamos comida y armonía. ¡Sigamos adelante juntos!',
     stats: {
       charisma: 96,
       drama: 90,
@@ -203,6 +210,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Actual Líder de la Semana con inmunidad absoluta y habitación privada en la suite de oro. Si alguien deja una taza sucia en la bacha, amanece en la lista de nominación.',
     famousQuote: 'Si no van a limpiar el confesionario, yo misma las nomino a todas sin dudar.',
     houseScandal: 'Ganó la prueba del laberinto del líder batiendo el récord histórico de la temporada.',
+    defenseSpeech: 'La disciplina y la lealtad no se negocian. Si alguien quiere que la casa funcione en orden, mi lugar está adentro protegiendo a las mías.',
     stats: {
       charisma: 92,
       drama: 86,
@@ -229,6 +237,7 @@ export const INITIAL_LOVELYS: Lovely[] = [
     bio: 'Customiza los cojines con marcadores indelebles y compone rimas improvisadas en el confesionario. Detesta los complots aburridos y vota siempre guiada por su instinto artístico.',
     famousQuote: 'Las reglas de la convivencia son sólo sugerencias de composición plástica.',
     houseScandal: 'Pintó un mural abstracto en el vidrio del baño usando delineadores de ojos.',
+    defenseSpeech: 'El arte verdadero no encaja en moldes prefabricados. Si me votan en el carrusel es para que siga pintando la casa con colores nuevos y rimas libres.',
     stats: {
       charisma: 93,
       drama: 82,

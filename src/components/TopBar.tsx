@@ -39,27 +39,34 @@ export const TopBar: React.FC<TopBarProps> = ({
         </a>
 
         {/* Zone 2: 4–5 clean single-line text navigation links */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
           <a
             href="#votacion"
             onClick={() => sounds.playClick()}
             className="hover:text-pink-400 transition-colors whitespace-nowrap shrink-0"
           >
-            Votación en Vivo
+            Votación
           </a>
           <a
             href="#podio"
             onClick={() => sounds.playClick()}
             className="hover:text-pink-400 transition-colors whitespace-nowrap shrink-0"
           >
-            Podio Semanal
+            Podio
+          </a>
+          <a
+            href="#carrusel-eliminacion"
+            onClick={() => sounds.playClick()}
+            className="hover:text-rose-400 text-rose-300 transition-colors whitespace-nowrap shrink-0 font-semibold"
+          >
+            Carrusel de Eliminación
           </a>
           <a
             href="#confesionario"
             onClick={() => sounds.playClick()}
             className="hover:text-pink-400 transition-colors whitespace-nowrap shrink-0"
           >
-            El Confesionario
+            Confesionario
           </a>
           <a
             href="#camaras"
@@ -67,13 +74,6 @@ export const TopBar: React.FC<TopBarProps> = ({
             className="hover:text-pink-400 transition-colors whitespace-nowrap shrink-0"
           >
             Cámaras 24/7
-          </a>
-          <a
-            href="#galas"
-            onClick={() => sounds.playClick()}
-            className="hover:text-pink-400 transition-colors whitespace-nowrap shrink-0"
-          >
-            Galas & Placa
           </a>
         </nav>
 

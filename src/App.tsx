@@ -17,6 +17,7 @@ import { RulesSection } from './components/RulesSection';
 import { Footer } from './components/Footer';
 import { VoteModal } from './components/VoteModal';
 import { LovelyDetailModal } from './components/LovelyDetailModal';
+import { EliminationCarousel } from './components/EliminationCarousel';
 import { AdminPanel } from './components/AdminPanel';
 import { ShareLinksModal } from './components/ShareLinksModal';
 import { sounds } from './utils/soundEffects';
@@ -252,7 +253,7 @@ export default function App() {
   }, [isSimulating, recalculateStats, lovelys.length]);
 
   const handleScrollToNominadas = () => {
-    const el = document.getElementById('galas');
+    const el = document.getElementById('carrusel-eliminacion') || document.getElementById('galas');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -323,6 +324,13 @@ export default function App() {
               onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
               isSimulating={isSimulating}
               onToggleSimulation={() => setIsSimulating(!isSimulating)}
+            />
+
+            {/* Carrusel de Eliminación de las Nominadas */}
+            <EliminationCarousel
+              lovelys={lovelys}
+              onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
+              onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
             />
 
             {/* Gala Semanal & Placa de Nominadas */}
