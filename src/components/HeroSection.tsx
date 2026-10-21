@@ -6,7 +6,7 @@ import { sounds } from '../utils/soundEffects';
 
 interface HeroSectionProps {
   totalVotes: number;
-  availableVotes: number;
+  availableVotes?: number;
   onOpenVoting: () => void;
   onScrollToNominadas: () => void;
   currentLeaderName: string;
@@ -14,7 +14,6 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   totalVotes,
-  availableVotes,
   onOpenVoting,
   onScrollToNominadas,
   currentLeaderName,
@@ -72,7 +71,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
-              La Casa de las Famosísimas abre sus líneas de votación. Salva a tus habitantes nominadas de la eliminación y corona al miembro más querido de la casa con tus votos diarios.
+              La Casa de las Famosísimas abre sus líneas de votación. Salva a tus habitantes nominadas de la eliminación y corona al miembro más querido de la casa con tus votos ilimitados.
             </p>
 
             {/* CTAs */}
@@ -86,7 +85,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 className="px-6 py-3.5 text-sm font-bold text-white bg-gradient-to-r from-pink-600 via-rose-600 to-pink-700 hover:from-pink-500 hover:to-rose-500 rounded-xl shadow-xl shadow-pink-600/25 active:scale-95 transition-all flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>Votar Ahora ({availableVotes} disponibles)</span>
+                <span>Votar Ahora (¡Votos Ilimitados!)</span>
               </button>
 
               <button

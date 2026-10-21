@@ -176,9 +176,8 @@ export default function App() {
     if (newState) sounds.playClick();
   };
 
-  // Cast votes handler
+  // Cast votes handler (Unlimited voting)
   const handleCastVotes = (lovelyId: string, amount: number) => {
-    setAvailableVotes((prev) => Math.max(0, prev - amount));
     setLovelys((prev) => {
       const updated = prev.map((item) => {
         if (item.id === lovelyId) {
@@ -370,9 +369,7 @@ export default function App() {
         lovely={voteModalLovely}
         isOpen={Boolean(voteModalLovely)}
         onClose={() => setVoteModalLovely(null)}
-        availableVotes={availableVotes}
         onCastVotes={handleCastVotes}
-        onEarnMoreVotes={handleEarnMoreVotes}
       />
 
       <LovelyDetailModal

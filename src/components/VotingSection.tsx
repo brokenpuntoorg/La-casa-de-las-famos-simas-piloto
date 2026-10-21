@@ -7,7 +7,7 @@ import { sounds } from '../utils/soundEffects';
 interface VotingSectionProps {
   lovelys: Lovely[];
   totalVotes: number;
-  availableVotes: number;
+  availableVotes?: number;
   onVoteForLovely: (lovely: Lovely) => void;
   onSelectLovely: (lovely: Lovely) => void;
   isSimulating: boolean;

@@ -50,10 +50,10 @@ export const RulesSection: React.FC = () => {
               <Sparkles className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold text-white">
-              3. Poder de Voto del Fan
+              3. Votación 100% Ilimitada
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Cada usuario cuenta con un paquete base de 10 votos diarios. Puedes completar misiones de fandom en la cabina para recargar votos extra y multiplicar tu apoyo.
+              ¡Líneas totalmente abiertas! No hay restricciones ni topes diarios de votación. Puedes votar cuantas veces quieras por tus Lovelys favoritas en tandas de 1 hasta 100 votos.
             </p>
           </div>
         </div>

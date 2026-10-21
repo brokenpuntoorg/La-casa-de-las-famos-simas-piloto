@@ -6,7 +6,7 @@ interface TopBarProps {
   onQuickVoteClick: () => void;
   soundEnabled: boolean;
   onToggleSound: () => void;
-  availableVotes: number;
+  availableVotes?: number;
   currentMode: 'votante' | 'admin';
   onToggleMode: () => void;
   onOpenShareModal: () => void;
@@ -16,7 +16,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   onQuickVoteClick,
   soundEnabled,
   onToggleSound,
-  availableVotes,
   currentMode,
   onToggleMode,
   onOpenShareModal,
@@ -138,10 +137,10 @@ export const TopBar: React.FC<TopBarProps> = ({
               sounds.playClick();
               onQuickVoteClick();
             }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-lg shadow-lg shadow-pink-600/20 active:scale-95 transition-all whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-lg shadow-lg shadow-pink-600/20 active:scale-95 transition-all whitespace-nowrap shrink-0"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Votar ({availableVotes})</span>
+            <span>Votar (Ilimitado)</span>
           </button>
         </div>
       </div>
