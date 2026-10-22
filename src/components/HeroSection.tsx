@@ -5,15 +5,16 @@ import lovelysGlamImg from '../assets/images/lovelys_mascots_glam_1792610882886.
 import { sounds } from '../utils/soundEffects';
 
 interface HeroSectionProps {
-  totalVotes: number;
+  totalVotes?: number;
   availableVotes?: number;
+  userTotalVotes?: number;
   onOpenVoting: () => void;
   onScrollToNominadas: () => void;
   currentLeaderName: string;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  totalVotes,
+  userTotalVotes = 0,
   onOpenVoting,
   onScrollToNominadas,
   currentLeaderName,
@@ -136,18 +137,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 </div>
               </div>
 
-              {/* Quick stats strip below image */}
+              {/* Quick stats strip below image: personal votes + hidden global count */}
               <div className="p-4 grid grid-cols-2 gap-3 divide-x divide-slate-800 text-center">
                 <div>
-                  <div className="text-xs text-slate-400 font-medium">Votos Totales Emitidos</div>
-                  <div className="text-xl font-bold font-mono-numbers text-white mt-0.5">
-                    {totalVotes.toLocaleString('es-ES')}
+                  <div className="text-xs text-slate-400 font-medium">Tus Votos Emitidos</div>
+                  <div className="text-xl font-bold font-mono-numbers text-pink-400 mt-0.5">
+                    {userTotalVotes.toLocaleString('es-ES')} <span className="text-xs text-slate-400 font-normal">votos</span>
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 font-medium">Habitantes en Competencia</div>
-                  <div className="text-xl font-bold font-mono-numbers text-pink-400 mt-0.5">
-                    9 Lovelys
+                  <div className="text-xs text-slate-400 font-medium">Cómputo Global</div>
+                  <div className="text-xs font-bold text-amber-300 mt-1.5 flex items-center justify-center gap-1">
+                    <span>🔒 Voto Secreto de Gala</span>
                   </div>
                 </div>
               </div>

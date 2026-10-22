@@ -8,6 +8,7 @@ interface LovelyDetailModalProps {
   lovely: Lovely | null;
   isOpen: boolean;
   onClose: () => void;
+  userVotesCount?: number;
   onVote: (lovely: Lovely) => void;
 }
 
@@ -15,6 +16,7 @@ export const LovelyDetailModal: React.FC<LovelyDetailModalProps> = ({
   lovely,
   isOpen,
   onClose,
+  userVotesCount = 0,
   onVote,
 }) => {
   if (!isOpen || !lovely) return null;
@@ -192,9 +194,14 @@ export const LovelyDetailModal: React.FC<LovelyDetailModalProps> = ({
           </div>
 
           {/* Action Footer */}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
-            <div className="text-xs text-slate-400 font-mono-numbers">
-              Acumula <strong className="text-white">{lovely.votes.toLocaleString('es-ES')}</strong> votos ({lovely.votePercentage.toFixed(1)}%)
+          <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs text-slate-300">
+              <div className="font-semibold text-pink-300">
+                Tus votos aportados: <span className="font-mono-numbers font-bold text-white">{userVotesCount.toLocaleString('es-ES')}</span> votos
+              </div>
+              <div className="text-[11px] text-amber-300 flex items-center gap-1 mt-0.5">
+                <span>🔒 Cómputo global secreto en custodia de La Jefa</span>
+              </div>
             </div>
 
             <button
@@ -203,7 +210,7 @@ export const LovelyDetailModal: React.FC<LovelyDetailModalProps> = ({
                 onClose();
                 onVote(lovely);
               }}
-              className="px-6 py-3 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-xl shadow-lg shadow-pink-600/30 transition-all flex items-center gap-2"
+              className="px-6 py-3 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 rounded-xl shadow-lg shadow-pink-600/30 transition-all flex items-center justify-center gap-2"
             >
               <Heart className="w-4 h-4 fill-white" />
               <span>Votar por {lovely.name}</span>

@@ -28,3 +28,62 @@ h1, h2, h3, .font-display {
 ::-webkit-scrollbar-thumb:hover {
   background: #ec4899;
 }
+
+/* Plushie Squash & Stretch Animation ("Apretar a la Lovely") */
+@keyframes plushie-squish {
+  0% {
+    transform: scale(1, 1) translateY(0);
+  }
+  15% {
+    transform: scale(1.32, 0.68) translateY(7px);
+  }
+  35% {
+    transform: scale(0.82, 1.26) translateY(-9px);
+  }
+  55% {
+    transform: scale(1.14, 0.90) translateY(4px);
+  }
+  75% {
+    transform: scale(0.94, 1.06) translateY(-2px);
+  }
+  90% {
+    transform: scale(1.02, 0.98) translateY(1px);
+  }
+  100% {
+    transform: scale(1, 1) translateY(0);
+  }
+}
+
+@keyframes plushie-gentle-breathe {
+  0%, 100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+
+@keyframes squish-heart-float {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-24px) scale(1.1) rotate(12deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-46px) scale(1.3) rotate(-10deg);
+  }
+}
+
+.animate-plushie-squish {
+  animation: plushie-squish 0.65s cubic-bezier(0.22, 1.2, 0.36, 1);
+  transform-origin: 50% 85%;
+  will-change: transform;
+}
+
+.animate-squish-heart {
+  animation: squish-heart-float 0.8s ease-out forwards;
+}

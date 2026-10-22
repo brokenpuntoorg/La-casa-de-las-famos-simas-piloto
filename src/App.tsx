@@ -24,6 +24,7 @@ import { sounds } from './utils/soundEffects';
 
 const STORAGE_KEY_LOVELYS = 'lcdf_lovelys_v2';
 const STORAGE_KEY_VOTES = 'lcdf_available_votes_v2';
+const STORAGE_KEY_USER_VOTES = 'lcdf_user_votes_v2';
 const STORAGE_KEY_CONFESSIONS = 'lcdf_confessions_v2';
 const STORAGE_KEY_WEEKS = 'lcdf_weeks_v2';
 
@@ -104,6 +105,17 @@ export default function App() {
     return INITIAL_CONFESSIONS;
   });
 
+  // Track personal votes cast by the current user (secret blind voting)
+  const [userVotes, setUserVotes] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_USER_VOTES);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return {};
+  });
+
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
 
@@ -168,6 +180,14 @@ export default function App() {
     }
   }, [confessions]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_USER_VOTES, JSON.stringify(userVotes));
+    } catch {
+      // ignore
+    }
+  }, [userVotes]);
+
   // Audio mute toggle
   const handleToggleSound = () => {
     const newState = !soundEnabled;
@@ -176,8 +196,9 @@ export default function App() {
     if (newState) sounds.playClick();
   };
 
-  // Cast votes handler (Unlimited voting)
+  // Cast votes handler (Unlimited voting + Personal secret tally tracking)
   const handleCastVotes = (lovelyId: string, amount: number) => {
+    // 1. Candidate's global tally (for system rankings and admin panel)
     setLovelys((prev) => {
       const updated = prev.map((item) => {
         if (item.id === lovelyId) {
@@ -190,6 +211,12 @@ export default function App() {
       });
       return recalculateStats(updated);
     });
+
+    // 2. Personal vote record for the current voter
+    setUserVotes((prev) => ({
+      ...prev,
+      [lovelyId]: (prev[lovelyId] || 0) + amount,
+    }));
   };
 
   // Earn more votes
@@ -220,10 +247,15 @@ export default function App() {
     );
   };
 
-  // Total votes tally
+  // Total global votes tally (for admin / calculations)
   const totalVotes = useMemo(() => {
     return lovelys.reduce((acc, curr) => acc + curr.votes, 0);
   }, [lovelys]);
+
+  // Total votes cast specifically by this user
+  const totalUserVotes = useMemo(() => {
+    return Object.values(userVotes).reduce((acc, curr) => acc + curr, 0);
+  }, [userVotes]);
 
   // Leader of the week
   const currentLeader = useMemo(() => {
@@ -270,6 +302,7 @@ export default function App() {
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
         availableVotes={availableVotes}
+        userTotalVotes={totalUserVotes}
         currentMode={currentMode}
         onToggleMode={() => handleSwitchMode(currentMode === 'admin' ? 'votante' : 'admin')}
         onOpenShareModal={() => setShareModalOpen(true)}
@@ -299,6 +332,7 @@ export default function App() {
             <HeroSection
               totalVotes={totalVotes}
               availableVotes={availableVotes}
+              userTotalVotes={totalUserVotes}
               onOpenVoting={() => {
                 const target = lovelys.find((l) => l.rank === 1) || lovelys[0];
                 setVoteModalLovely(target);
@@ -307,18 +341,20 @@ export default function App() {
               currentLeaderName={currentLeader.name}
             />
 
-            {/* Podio de Favoritas */}
+            {/* Podio de Favoritas (Cómputo secreto) */}
             <LeaderboardPodium
               lovelys={lovelys}
+              userVotes={userVotes}
               onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
               onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
             />
 
-            {/* Cabina y Lista Completa de Votación */}
+            {/* Cabina y Lista Completa de Votación (Cómputo general secreto) */}
             <VotingSection
               lovelys={lovelys}
               totalVotes={totalVotes}
               availableVotes={availableVotes}
+              userVotes={userVotes}
               onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
               onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
               isSimulating={isSimulating}
@@ -328,6 +364,7 @@ export default function App() {
             {/* Carrusel de Eliminación de las Nominadas */}
             <EliminationCarousel
               lovelys={lovelys}
+              userVotes={userVotes}
               onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
               onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
             />
@@ -336,6 +373,7 @@ export default function App() {
             <GalaTimelineSection
               weeks={weeks}
               lovelys={lovelys}
+              userVotes={userVotes}
               onVoteForLovely={(lovely) => setVoteModalLovely(lovely)}
               onSelectLovely={(lovely) => setDetailModalLovely(lovely)}
             />
@@ -369,6 +407,7 @@ export default function App() {
         lovely={voteModalLovely}
         isOpen={Boolean(voteModalLovely)}
         onClose={() => setVoteModalLovely(null)}
+        userVotesCount={voteModalLovely ? userVotes[voteModalLovely.id] || 0 : 0}
         onCastVotes={handleCastVotes}
       />
 
@@ -376,6 +415,7 @@ export default function App() {
         lovely={detailModalLovely}
         isOpen={Boolean(detailModalLovely)}
         onClose={() => setDetailModalLovely(null)}
+        userVotesCount={detailModalLovely ? userVotes[detailModalLovely.id] || 0 : 0}
         onVote={(lovely) => setVoteModalLovely(lovely)}
       />
 

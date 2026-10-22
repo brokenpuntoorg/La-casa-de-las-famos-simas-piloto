@@ -1,17 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lovely } from '../types';
+import { sounds } from '../utils/soundEffects';
 
 interface MascotAvatarProps {
   lovely: Lovely;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showStatusIndicator?: boolean;
+  isSqueezing?: boolean;
+  interactive?: boolean;
+  onSqueeze?: () => void;
+  className?: string;
 }
 
 export const MascotAvatar: React.FC<MascotAvatarProps> = ({
   lovely,
   size = 'md',
   showStatusIndicator = false,
+  isSqueezing = false,
+  interactive = true,
+  onSqueeze,
+  className = '',
 }) => {
+  const [internalSquish, setInternalSquish] = useState<boolean>(false);
+  const [squishKey, setSquishKey] = useState<number>(0);
+  const [floatingHearts, setFloatingHearts] = useState<Array<{ id: number; left: number; emoji: string }>>([]);
+
+  // Trigger squish whenever external isSqueezing becomes true
+  useEffect(() => {
+    if (isSqueezing) {
+      triggerSquishEffect();
+    }
+  }, [isSqueezing]);
+
+  const triggerSquishEffect = () => {
+    sounds.playSquish();
+    setInternalSquish(true);
+    setSquishKey((k) => k + 1);
+
+    // Spawn 2-3 cute floating hearts / stars
+    const newHearts = [
+      { id: Date.now() + 1, left: 20 + Math.random() * 20, emoji: '💖' },
+      { id: Date.now() + 2, left: 55 + Math.random() * 25, emoji: '✨' },
+    ];
+    setFloatingHearts((prev) => [...prev, ...newHearts]);
+
+    setTimeout(() => {
+      setInternalSquish(false);
+    }, 650);
+
+    setTimeout(() => {
+      setFloatingHearts((prev) => prev.filter((h) => !newHearts.some((nh) => nh.id === h.id)));
+    }, 900);
+  };
+
+  const handlePlushieClick = (e: React.MouseEvent) => {
+    if (!interactive) return;
+    e.stopPropagation();
+    triggerSquishEffect();
+    onSqueeze?.();
+  };
   const sizeMap = {
     sm: 'w-12 h-12',
     md: 'w-20 h-20',
@@ -117,10 +164,32 @@ export const MascotAvatar: React.FC<MascotAvatarProps> = ({
   };
 
   return (
-    <div className={`relative ${sizeMap[size]} shrink-0 select-none group`}>
+    <div
+      onClick={handlePlushieClick}
+      className={`relative ${sizeMap[size]} shrink-0 select-none group ${
+        interactive ? 'cursor-pointer hover:brightness-105 active:scale-95' : ''
+      } ${className}`}
+      title={interactive ? `¡Haz clic para apretar a ${lovely.name}!` : lovely.name}
+    >
+      {/* Floating Squish Hearts & Sparkles */}
+      {floatingHearts.map((fh) => (
+        <span
+          key={fh.id}
+          style={{ left: `${fh.left}%`, top: '-15%' }}
+          className="absolute pointer-events-none text-base select-none z-20 animate-squish-heart"
+        >
+          {fh.emoji}
+        </span>
+      ))}
+
       <svg
+        key={squishKey}
         viewBox="0 0 100 100"
-        className="w-full h-full drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+        className={`w-full h-full drop-shadow-md origin-[50%_85%] ${
+          internalSquish
+            ? 'animate-plushie-squish'
+            : 'transition-transform duration-200 group-hover:scale-105 group-active:scale-x-125 group-active:scale-y-75'
+        }`}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >

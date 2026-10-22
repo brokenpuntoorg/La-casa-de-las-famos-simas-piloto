@@ -7,6 +7,7 @@ import { sounds } from '../utils/soundEffects';
 interface GalaTimelineSectionProps {
   weeks: GalaWeek[];
   lovelys: Lovely[];
+  userVotes?: Record<string, number>;
   onVoteForLovely: (lovely: Lovely) => void;
   onSelectLovely: (lovely: Lovely) => void;
 }
@@ -14,6 +15,7 @@ interface GalaTimelineSectionProps {
 export const GalaTimelineSection: React.FC<GalaTimelineSectionProps> = ({
   weeks,
   lovelys,
+  userVotes = {},
   onVoteForLovely,
   onSelectLovely,
 }) => {
@@ -121,8 +123,11 @@ export const GalaTimelineSection: React.FC<GalaTimelineSectionProps> = ({
                           <div className="text-xs text-rose-400 font-semibold">
                             TWICE {nom.member}
                           </div>
-                          <div className="text-xs text-slate-400 mt-0.5">
-                            {nom.votes.toLocaleString('es-ES')} votos ({nom.votePercentage.toFixed(1)}%)
+                          <div className="text-xs text-pink-300 font-medium mt-0.5">
+                            Tus votos: <strong className="text-white font-mono">{(userVotes[nom.id] || 0).toLocaleString('es-ES')}</strong>
+                          </div>
+                          <div className="text-[10px] text-amber-300/90 font-medium">
+                            🔒 Cómputo secreto de gala
                           </div>
                         </div>
                       </div>

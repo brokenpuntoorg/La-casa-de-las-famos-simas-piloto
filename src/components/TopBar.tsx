@@ -7,6 +7,7 @@ interface TopBarProps {
   soundEnabled: boolean;
   onToggleSound: () => void;
   availableVotes?: number;
+  userTotalVotes?: number;
   currentMode: 'votante' | 'admin';
   onToggleMode: () => void;
   onOpenShareModal: () => void;
@@ -16,6 +17,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onQuickVoteClick,
   soundEnabled,
   onToggleSound,
+  userTotalVotes = 0,
   currentMode,
   onToggleMode,
   onOpenShareModal,
@@ -129,6 +131,14 @@ export const TopBar: React.FC<TopBarProps> = ({
               </>
             )}
           </button>
+
+          {/* User's personal vote badge */}
+          {userTotalVotes > 0 && (
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-pink-950/40 border border-pink-500/30 text-xs font-semibold text-pink-300">
+              <span>Tus votos:</span>
+              <span className="font-mono-numbers font-bold text-white">{userTotalVotes}</span>
+            </div>
+          )}
 
           {/* Primary Action Button */}
           <button

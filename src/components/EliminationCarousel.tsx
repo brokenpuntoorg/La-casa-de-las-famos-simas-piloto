@@ -21,12 +21,14 @@ import confetti from 'canvas-confetti';
 
 interface EliminationCarouselProps {
   lovelys: Lovely[];
+  userVotes?: Record<string, number>;
   onVoteForLovely: (lovely: Lovely) => void;
   onSelectLovely: (lovely: Lovely) => void;
 }
 
 export const EliminationCarousel: React.FC<EliminationCarouselProps> = ({
   lovelys,
+  userVotes = {},
   onVoteForLovely,
   onSelectLovely,
 }) => {
@@ -37,6 +39,7 @@ export const EliminationCarousel: React.FC<EliminationCarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoSpinning, setIsAutoSpinning] = useState(false);
   const [isVerdictSpinning, setIsVerdictSpinning] = useState(false);
+  const [isSqueezing, setIsSqueezing] = useState(false);
   const [verdictOutcome, setVerdictOutcome] = useState<{
     savedName: string;
     dangerName: string;
@@ -219,7 +222,12 @@ export const EliminationCarousel: React.FC<EliminationCarouselProps> = ({
                 />
 
                 <div className="relative z-10">
-                  <MascotAvatar lovely={currentLovely} size="xl" showStatusIndicator />
+                  <MascotAvatar
+                    lovely={currentLovely}
+                    size="xl"
+                    showStatusIndicator
+                    isSqueezing={isSqueezing}
+                  />
                 </div>
 
                 {/* Nomination Badge */}
@@ -252,31 +260,29 @@ export const EliminationCarousel: React.FC<EliminationCarouselProps> = ({
             {/* Right Zone: Elimination Metrics, Speech & Emergency Vote (7 Cols) */}
             <div className="lg:col-span-7 space-y-5">
               
-              {/* Status Header */}
+              {/* Status Header: Personal votes + Secret Global Count */}
               <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400 font-medium">
-                    Porcentaje de apoyo para salvarse:
+                    Tus votos personales para salvarla:
                   </span>
-                  <span className="font-mono-numbers text-xl font-black text-rose-400">
-                    {currentLovely.votePercentage.toFixed(1)}%
+                  <span className="font-mono-numbers text-xl font-black text-pink-400">
+                    {(userVotes[currentLovely.id] || 0).toLocaleString('es-ES')} votos
                   </span>
                 </div>
 
-                {/* Progress bar */}
-                <div className="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden border border-slate-800 p-0.5">
-                  <div
-                    className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-rose-500 to-pink-500 shadow-md"
-                    style={{ width: `${Math.max(6, currentLovely.votePercentage)}%` }}
-                  />
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between text-xs text-amber-300">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Cómputo Global de la Placa:</span>
+                  </span>
+                  <span className="font-bold">🔒 Secreto bajo llave para la Gala</span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-mono-numbers">
-                    {currentLovely.votes.toLocaleString('es-ES')} votos acumulados
-                  </span>
-                  <span className="text-amber-400 font-semibold">
-                    Lugar en la tabla: #{currentLovely.rank}
+                  <span>Voto de salvación acumulativo</span>
+                  <span className="text-rose-400 font-semibold">
+                    En riesgo de eliminación este domingo
                   </span>
                 </div>
               </div>
@@ -312,8 +318,13 @@ export const EliminationCarousel: React.FC<EliminationCarouselProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      sounds.playVoteSuccess();
-                      onVoteForLovely(currentLovely);
+                      setIsSqueezing(true);
+                      sounds.playSquish();
+                      setTimeout(() => {
+                        sounds.playVoteSuccess();
+                        onVoteForLovely(currentLovely);
+                        setTimeout(() => setIsSqueezing(false), 700);
+                      }, 120);
                     }}
                     className="w-full sm:w-auto px-5 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 rounded-xl shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
                   >

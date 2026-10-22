@@ -7,12 +7,14 @@ import { sounds } from '../utils/soundEffects';
 
 interface LeaderboardPodiumProps {
   lovelys: Lovely[];
+  userVotes?: Record<string, number>;
   onVoteForLovely: (lovely: Lovely) => void;
   onSelectLovely: (lovely: Lovely) => void;
 }
 
 export const LeaderboardPodium: React.FC<LeaderboardPodiumProps> = ({
   lovelys,
+  userVotes = {},
   onVoteForLovely,
   onSelectLovely,
 }) => {
@@ -57,10 +59,10 @@ export const LeaderboardPodium: React.FC<LeaderboardPodiumProps> = ({
               Podio de las 3 Famosísimas Favoritas
             </h2>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span>Actualización en tiempo real</span>
-            <span aria-hidden="true">·</span>
-            <span>Semana 4 en curso</span>
+          <div className="flex items-center gap-2 text-xs text-amber-300">
+            <span>🔒 Voto a ciegas: Cómputo global en secreto</span>
+            <span aria-hidden="true" className="text-slate-600">·</span>
+            <span className="text-slate-400">Semana 4</span>
           </div>
         </div>
 
@@ -115,15 +117,15 @@ export const LeaderboardPodium: React.FC<LeaderboardPodiumProps> = ({
                 </button>
 
                 <div className="w-full mt-3 rounded-t-2xl bg-slate-900 border-t-2 border-x border-slate-700 p-4 text-center h-48 flex flex-col justify-between">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="text-xl font-black text-slate-400 font-display">
                       #2
                     </div>
-                    <div className="text-lg font-bold font-mono-numbers text-white">
-                      {second.votes.toLocaleString('es-ES')} <span className="text-xs text-slate-400 font-normal">votos</span>
+                    <div className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1">
+                      <span>🔒 Cómputo Secreto</span>
                     </div>
-                    <div className="text-xs font-semibold text-pink-400">
-                      {second.votePercentage.toFixed(1)}% del total
+                    <div className="text-[11px] text-pink-300 font-medium">
+                      Tus votos: <strong className="text-white font-mono-numbers">{(userVotes[second.id] || 0).toLocaleString('es-ES')}</strong>
                     </div>
                   </div>
                   
@@ -176,15 +178,15 @@ export const LeaderboardPodium: React.FC<LeaderboardPodiumProps> = ({
                 </button>
 
                 <div className="w-full mt-3 rounded-t-2xl bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 border-t-4 border-amber-400 border-x border-slate-700 p-5 text-center h-60 flex flex-col justify-between shadow-xl shadow-amber-500/10">
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="text-2xl font-black text-amber-400 font-display">
                       #1
                     </div>
-                    <div className="text-2xl font-black font-mono-numbers text-white">
-                      {first.votes.toLocaleString('es-ES')} <span className="text-xs text-slate-400 font-normal">votos</span>
+                    <div className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1">
+                      <span>🔒 Cómputo Secreto</span>
                     </div>
-                    <div className="text-sm font-bold text-amber-300">
-                      {first.votePercentage.toFixed(1)}% del total
+                    <div className="text-xs text-amber-200 font-medium">
+                      Tus votos: <strong className="text-white font-mono-numbers">{(userVotes[first.id] || 0).toLocaleString('es-ES')}</strong>
                     </div>
                   </div>
                   
@@ -228,15 +230,15 @@ export const LeaderboardPodium: React.FC<LeaderboardPodiumProps> = ({
                 </button>
 
                 <div className="w-full mt-3 rounded-t-2xl bg-slate-900 border-t-2 border-x border-slate-700 p-4 text-center h-44 flex flex-col justify-between">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="text-xl font-black text-amber-600/80 font-display">
                       #3
                     </div>
-                    <div className="text-lg font-bold font-mono-numbers text-white">
-                      {third.votes.toLocaleString('es-ES')} <span className="text-xs text-slate-400 font-normal">votos</span>
+                    <div className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1">
+                      <span>🔒 Cómputo Secreto</span>
                     </div>
-                    <div className="text-xs font-semibold text-pink-400">
-                      {third.votePercentage.toFixed(1)}% del total
+                    <div className="text-[11px] text-pink-300 font-medium">
+                      Tus votos: <strong className="text-white font-mono-numbers">{(userVotes[third.id] || 0).toLocaleString('es-ES')}</strong>
                     </div>
                   </div>
                   

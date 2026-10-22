@@ -6,8 +6,9 @@ import { sounds } from '../utils/soundEffects';
 
 interface VotingSectionProps {
   lovelys: Lovely[];
-  totalVotes: number;
+  totalVotes?: number;
   availableVotes?: number;
+  userVotes?: Record<string, number>;
   onVoteForLovely: (lovely: Lovely) => void;
   onSelectLovely: (lovely: Lovely) => void;
   isSimulating: boolean;
@@ -16,8 +17,7 @@ interface VotingSectionProps {
 
 export const VotingSection: React.FC<VotingSectionProps> = ({
   lovelys,
-  totalVotes,
-  availableVotes,
+  userVotes = {},
   onVoteForLovely,
   onSelectLovely,
   isSimulating,
@@ -25,6 +25,7 @@ export const VotingSection: React.FC<VotingSectionProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'nominadas' | 'top' | 'lider'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [squeezingId, setSqueezingId] = useState<string | null>(null);
 
   const filteredLovelys = lovelys.filter((item) => {
     // Search query match
@@ -54,7 +55,7 @@ export const VotingSection: React.FC<VotingSectionProps> = ({
             Vota por las Habitantes de la Casa
           </h2>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-            Tus votos determinan quién encabeza la tabla semanal y quién se salva de la placa de expulsión.
+            Votación a ciegas: el conteo global se mantiene secreto hasta la gala dominical. Aquí puedes ver exclusivamente los votos que tú has emitido por cada habitante.
           </p>
         </div>
 
@@ -224,16 +225,15 @@ export const VotingSection: React.FC<VotingSectionProps> = ({
 
                   {/* Character presentation */}
                   <div className="flex items-start gap-4 mb-4">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        sounds.playClick();
-                        onSelectLovely(lovely);
-                      }}
-                      className="cursor-pointer focus:outline-none"
-                    >
-                      <MascotAvatar lovely={lovely} size="md" showStatusIndicator />
-                    </button>
+                    <div className="cursor-pointer focus:outline-none">
+                      <MascotAvatar
+                        lovely={lovely}
+                        size="md"
+                        showStatusIndicator
+                        isSqueezing={squeezingId === lovely.id}
+                        onSqueeze={() => onSelectLovely(lovely)}
+                      />
+                    </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2">
@@ -258,26 +258,18 @@ export const VotingSection: React.FC<VotingSectionProps> = ({
                     "{lovely.famousQuote}"
                   </blockquote>
 
-                  {/* Vote Progress Bar */}
-                  <div className="space-y-1.5 mt-auto pt-2">
+                  {/* Personal User Votes & Blind Global Count */}
+                  <div className="space-y-2 mt-auto pt-2.5 border-t border-slate-800/80">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Votos acumulados</span>
-                      <span className="font-mono-numbers font-bold text-white">
-                        {lovely.votes.toLocaleString('es-ES')}{' '}
-                        <span className="text-slate-500 font-normal">
-                          ({lovely.votePercentage.toFixed(1)}%)
-                        </span>
+                      <span className="text-slate-400">Tus votos emitidos:</span>
+                      <span className="font-mono-numbers font-bold text-pink-400">
+                        {(userVotes[lovely.id] || 0).toLocaleString('es-ES')} votos
                       </span>
                     </div>
 
-                    <div className="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-slate-800">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.max(4, lovely.votePercentage)}%`,
-                          backgroundColor: lovely.colorHex,
-                        }}
-                      />
+                    <div className="flex items-center justify-between text-[11px] text-amber-300 bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/20">
+                      <span>Cómputo general:</span>
+                      <span className="font-semibold">🔒 Secreto hasta la Gala</span>
                     </div>
                   </div>
                 </div>
@@ -299,8 +291,13 @@ export const VotingSection: React.FC<VotingSectionProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      sounds.playVoteSuccess();
-                      onVoteForLovely(lovely);
+                      setSqueezingId(lovely.id);
+                      sounds.playSquish();
+                      setTimeout(() => {
+                        sounds.playVoteSuccess();
+                        onVoteForLovely(lovely);
+                        setTimeout(() => setSqueezingId(null), 700);
+                      }, 120);
                     }}
                     className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow active:scale-95 ${
                       isNominated

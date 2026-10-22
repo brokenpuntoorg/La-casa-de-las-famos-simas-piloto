@@ -9,6 +9,7 @@ interface VoteModalProps {
   lovely: Lovely | null;
   isOpen: boolean;
   onClose: () => void;
+  userVotesCount?: number;
   onCastVotes: (lovelyId: string, amount: number) => void;
   onEarnMoreVotes?: (amount: number, reason: string) => void;
 }
@@ -17,18 +18,25 @@ export const VoteModal: React.FC<VoteModalProps> = ({
   lovely,
   isOpen,
   onClose,
+  userVotesCount = 0,
   onCastVotes,
 }) => {
   const [voteAmount, setVoteAmount] = useState<number>(10);
   const [successAnimation, setSuccessAnimation] = useState<boolean>(false);
+  const [isSqueezingLovely, setIsSqueezingLovely] = useState<boolean>(false);
 
   if (!isOpen || !lovely) return null;
 
   const handleVoteSubmit = () => {
     if (voteAmount <= 0) return;
 
-    // Trigger celebration effects
-    sounds.playVoteSuccess();
+    // Trigger squash & stretch movement on the Lovely plushie!
+    setIsSqueezingLovely(true);
+    sounds.playSquish();
+    setTimeout(() => {
+      sounds.playVoteSuccess();
+    }, 120);
+
     try {
       confetti({
         particleCount: 90,
@@ -40,13 +48,24 @@ export const VoteModal: React.FC<VoteModalProps> = ({
       // Confetti fallback
     }
 
-    setSuccessAnimation(true);
     onCastVotes(lovely.id, voteAmount);
 
     setTimeout(() => {
+      setSuccessAnimation(true);
+    }, 280);
+
+    setTimeout(() => {
       setSuccessAnimation(false);
+      setIsSqueezingLovely(false);
       onClose();
-    }, 1100);
+    }, 1400);
+  };
+
+  const handlePresetSelect = (num: number) => {
+    sounds.playSquish();
+    setIsSqueezingLovely(true);
+    setTimeout(() => setIsSqueezingLovely(false), 500);
+    setVoteAmount(num);
   };
 
   return (
@@ -89,9 +108,12 @@ export const VoteModal: React.FC<VoteModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 space-y-6">
           {successAnimation ? (
-            <div className="py-8 text-center space-y-3 animate-bounce">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
-                <Check className="w-8 h-8" />
+            <div className="py-6 text-center space-y-3 animate-fade-in">
+              <div className="flex justify-center mb-1">
+                <MascotAvatar lovely={lovely} size="lg" isSqueezing={true} />
+              </div>
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
+                <Check className="w-6 h-6" />
               </div>
               <h4 className="text-xl font-black text-white">
                 ¡Votos Registrados con Éxito!
@@ -99,15 +121,32 @@ export const VoteModal: React.FC<VoteModalProps> = ({
               <p className="text-xs text-slate-300">
                 Sumaste <span className="font-bold text-pink-400 font-mono-numbers">+{voteAmount} votos</span> para {lovely.name}.
               </p>
+              <div className="text-xs text-slate-300 font-mono-numbers">
+                Total acumulado por ti para {lovely.name}: <strong className="text-white font-bold font-mono-numbers">{(userVotesCount + voteAmount).toLocaleString('es-ES')}</strong> votos
+              </div>
               <div className="text-[11px] text-emerald-400 font-medium">
                 ¡Recuerda que tus votos son ilimitados y puedes seguir votando!
               </div>
             </div>
           ) : (
             <>
-              {/* Lovely Info Highlight */}
+              {/* Lovely Info Highlight with Squishy Plushie */}
               <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-                <MascotAvatar lovely={lovely} size="lg" showStatusIndicator />
+                <div className="flex flex-col items-center">
+                  <MascotAvatar
+                    lovely={lovely}
+                    size="lg"
+                    showStatusIndicator
+                    isSqueezing={isSqueezingLovely}
+                    onSqueeze={() => {
+                      setIsSqueezingLovely(true);
+                      setTimeout(() => setIsSqueezingLovely(false), 500);
+                    }}
+                  />
+                  <span className="text-[10px] text-pink-300/80 font-medium mt-1">
+                    🤏 ¡Apriétame!
+                  </span>
+                </div>
                 <div>
                   <div className="text-xs font-semibold text-pink-400">
                     TWICE {lovely.member} · {lovely.hangul}
@@ -118,8 +157,11 @@ export const VoteModal: React.FC<VoteModalProps> = ({
                   <p className="text-xs text-slate-300 mt-0.5">
                     {lovely.roleInHouse}
                   </p>
-                  <div className="text-xs text-slate-400 mt-1 font-mono-numbers">
-                    Total actual: <strong className="text-white">{lovely.votes.toLocaleString('es-ES')}</strong> votos ({lovely.votePercentage.toFixed(1)}%)
+                  <div className="text-xs text-pink-300 mt-1 font-mono-numbers">
+                    Tus votos emitidos por ella: <strong className="text-white">{userVotesCount.toLocaleString('es-ES')}</strong> votos
+                  </div>
+                  <div className="text-[11px] text-amber-300 mt-0.5">
+                    🔒 Cómputo global secreto bajo custodia de La Jefa
                   </div>
                 </div>
               </div>
@@ -144,16 +186,13 @@ export const VoteModal: React.FC<VoteModalProps> = ({
                   className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500"
                 />
 
-                {/* Quick presets */}
+                {/* Quick presets that squish the lovely! */}
                 <div className="grid grid-cols-6 gap-1.5">
                   {[1, 5, 10, 25, 50, 100].map((num) => (
                     <button
                       key={num}
                       type="button"
-                      onClick={() => {
-                        sounds.playClick();
-                        setVoteAmount(num);
-                      }}
+                      onClick={() => handlePresetSelect(num)}
                       className={`py-2 text-xs font-bold rounded-lg border transition-colors ${
                         voteAmount === num
                           ? 'bg-pink-600 text-white border-pink-500 shadow-sm'

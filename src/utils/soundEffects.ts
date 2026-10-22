@@ -191,6 +191,48 @@ class SoundEngine {
       // audio safety
     }
   }
+
+  // Cute plushie squeak / squishy squeeze sound
+  public playSquish() {
+    if (!this.enabled) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+
+      // Primary squeaker tone (frequency ramp up then down)
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(980, now + 0.07);
+      osc.frequency.exponentialRampToValueAtTime(680, now + 0.18);
+
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+
+      // Cute sub harmonic pop
+      const subOsc = this.ctx.createOscillator();
+      const subGain = this.ctx.createGain();
+      subOsc.type = 'triangle';
+      subOsc.frequency.setValueAtTime(320, now);
+      subOsc.frequency.exponentialRampToValueAtTime(480, now + 0.06);
+      subGain.gain.setValueAtTime(0.12, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      subOsc.connect(subGain);
+      subGain.connect(this.ctx.destination);
+      subOsc.start(now);
+      subOsc.stop(now + 0.15);
+    } catch {
+      // audio safety
+    }
+  }
 }
 
 export const sounds = new SoundEngine();
